@@ -10,15 +10,14 @@ fn part_1(input_file: &str) -> Result<(), Box<dyn Error>> {
 
     let priority_sum = reader
         .lines()
-        .map(|line| {
+        .filter_map(|line| {
             if let Ok(line) = line {
                 find_duplicate(&line)
             } else {
                 None
             }
         })
-        .filter_map(|letter| letter)
-        .map(|letter| priority(letter))
+        .map(priority)
         .sum::<u32>();
 
     println!("{priority_sum}");
@@ -48,10 +47,7 @@ fn part_2(input_file: &str) -> Result<(), Box<dyn Error>> {
         }
     }
 
-    let priority_sum = common_letters
-        .into_iter()
-        .map(|letter| priority(letter))
-        .sum::<u32>();
+    let priority_sum = common_letters.into_iter().map(priority).sum::<u32>();
 
     println!("{priority_sum}");
 
@@ -59,13 +55,9 @@ fn part_2(input_file: &str) -> Result<(), Box<dyn Error>> {
 }
 
 fn find_common_letter(first_group: &str, second_group: &str, third_group: &str) -> Option<char> {
-    for letter in first_group.chars() {
-        if second_group.contains(letter) && third_group.contains(letter) {
-            return Some(letter);
-        }
-    }
-
-    None
+    first_group
+        .chars()
+        .find(|&letter| second_group.contains(letter) && third_group.contains(letter))
 }
 
 fn find_duplicate(items: &str) -> Option<char> {
@@ -73,13 +65,9 @@ fn find_duplicate(items: &str) -> Option<char> {
     let first_half = &items[..half_index];
     let second_half = &items[half_index..];
 
-    for letter in first_half.chars() {
-        if second_half.contains(letter) {
-            return Some(letter);
-        }
-    }
-
-    None
+    first_half
+        .chars()
+        .find(|&letter| second_half.contains(letter))
 }
 
 fn priority(item: char) -> u32 {
