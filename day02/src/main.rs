@@ -1,6 +1,6 @@
 use std::{error::Error, fs};
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 enum Hand {
     Rock,
     Paper,
@@ -53,10 +53,62 @@ fn points_for_victory(opponent_hand: &Hand, my_hand: &Hand) -> u32 {
     }
 }
 
+fn parse_input_2(input: &str) -> Result<Vec<(Hand, Hand)>, Box<dyn Error>> {
+    input.lines().map(|line| parse_line_2(line)).collect()
+}
+
+fn parse_line_2(line: &str) -> Result<(Hand, Hand), Box<dyn Error>> {
+    if line.len() < 3 {
+        return Err(Box::from(format!("Line '{line}' too short")));
+    }
+
+    let first_hand = match line.chars().nth(0).unwrap() {
+        'A' => Hand::Rock,
+        'B' => Hand::Paper,
+        'C' => Hand::Scissors,
+        _ => return Err(Box::from("Invalid first hand")),
+    };
+
+    let second_hand = find_corresponding_hand(&first_hand, line.chars().nth(1).unwrap())?;
+
+    Ok((first_hand, second_hand))
+}
+
+fn find_corresponding_hand(
+    opponent_hand: &Hand,
+    how_round_ends: char,
+) -> Result<Hand, Box<dyn Error>> {
+    use Hand::*;
+
+    match how_round_ends {
+        'X' => {
+            // I need to lose
+            match opponent_hand {
+                Rock => Ok(Scissors),
+                Paper => Ok(Rock),
+                Scissors => Ok(Paper),
+            }
+        }
+        'Y' => {
+            // I need to draw - same hand as opponent
+            Ok(opponent_hand.clone())
+        }
+        'Z' => {
+            // I need to win
+            match opponent_hand {
+                Rock => Ok(Paper),
+                Paper => Ok(Scissors),
+                Scissors => Ok(Rock),
+            }
+        }
+        _ => Err(Box::from("Invalid way to end round")),
+    }
+}
+
 fn main() {
     let input = fs::read_to_string("input/input.txt").unwrap();
 
-    if let Ok(hands) = parse_input(&input) {
+    if let Ok(hands) = parse_input_2(&input) {
         let total_points = hands
             .iter()
             .map(|(opponent_hand, my_hand)| points_for_round(opponent_hand, my_hand))
