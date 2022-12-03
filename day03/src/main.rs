@@ -26,6 +26,48 @@ fn part_1(input_file: &str) -> Result<(), Box<dyn Error>> {
     Ok(())
 }
 
+fn part_2(input_file: &str) -> Result<(), Box<dyn Error>> {
+    let file = File::open(input_file)?;
+    let reader = BufReader::new(file);
+
+    let mut i = 0;
+    let mut group: [String; 3] = ["".into(), "".into(), "".into()];
+    let mut common_letters = Vec::new();
+
+    for (line_number, line) in reader.lines().enumerate() {
+        group[i] = line?;
+        i += 1;
+        if i == 3 {
+            if let Some(letter) = find_common_letter(&group[0], &group[1], &group[2]) {
+                common_letters.push(letter);
+            } else {
+                println!("Not found! {:?}", group);
+                println!("Line number {}", line_number);
+            }
+            i = 0;
+        }
+    }
+
+    let priority_sum = common_letters
+        .into_iter()
+        .map(|letter| priority(letter))
+        .sum::<u32>();
+
+    println!("{priority_sum}");
+
+    Ok(())
+}
+
+fn find_common_letter(first_group: &str, second_group: &str, third_group: &str) -> Option<char> {
+    for letter in first_group.chars() {
+        if second_group.contains(letter) && third_group.contains(letter) {
+            return Some(letter);
+        }
+    }
+
+    None
+}
+
 fn find_duplicate(items: &str) -> Option<char> {
     let half_index = items.len() / 2;
     let first_half = &items[..half_index];
@@ -50,6 +92,10 @@ fn priority(item: char) -> u32 {
 
 fn main() {
     if let Err(err) = part_1("input/input.txt") {
+        println!("{:?}", err);
+    }
+
+    if let Err(err) = part_2("input/input.txt") {
         println!("{:?}", err);
     }
 }
