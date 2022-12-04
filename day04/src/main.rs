@@ -17,8 +17,23 @@ fn part_1(input_file: &str) -> Result<(), Box<dyn Error>> {
 
     let pairs_fully_containing = reader
         .lines()
-        .filter_map(|line| line.ok())
-        .filter_map(|line| parse_line(&line).ok())
+        .filter_map(|line| {
+            if let Err(err) = line {
+                println!("Error reading line: {:?}", err);
+                None
+            } else {
+                line.ok()
+            }
+        })
+        .filter_map(|line| {
+            let parsed_line = parse_line(&line);
+            if let Err(err) = parsed_line {
+                println!("Error reading line: {:?}", err);
+                None
+            } else {
+                parsed_line.ok()
+            }
+        })
         .filter(|(a1, a2)| fully_contains(a1, a2))
         .count();
 
@@ -33,8 +48,23 @@ fn part_2(input_file: &str) -> Result<(), Box<dyn Error>> {
 
     let pairs_partially_containing = reader
         .lines()
-        .filter_map(|line| line.ok())
-        .filter_map(|line| parse_line(&line).ok())
+        .filter_map(|line| {
+            if let Err(err) = line {
+                println!("Error reading line: {:?}", err);
+                None
+            } else {
+                line.ok()
+            }
+        })
+        .filter_map(|line| {
+            let parsed_line = parse_line(&line);
+            if let Err(err) = parsed_line {
+                println!("Error reading line: {:?}", err);
+                None
+            } else {
+                parsed_line.ok()
+            }
+        })
         .filter(|(a1, a2)| partially_contains(a1, a2))
         .count();
 
